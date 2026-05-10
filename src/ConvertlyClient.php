@@ -115,16 +115,21 @@ final class ConvertlyClient
         $body = $fields;
         $body['files'] = new \CURLFile($filePath, $this->mimeType($filePath), basename($filePath));
 
+        $headers = array(
+            'Authorization: Bearer ' . $this->apiKey,
+            'Accept: application/json',
+        );
+        if (!empty($fields['idempotencyKey'])) {
+            $headers[] = 'Idempotency-Key: ' . (string) $fields['idempotencyKey'];
+        }
+
         $curl = curl_init($this->baseUrl . $path);
         curl_setopt_array($curl, array(
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $body,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 120,
-            CURLOPT_HTTPHEADER => array(
-                'Authorization: Bearer ' . $this->apiKey,
-                'Accept: application/json',
-            ),
+            CURLOPT_HTTPHEADER => $headers,
         ));
 
         return $this->execute($curl);
@@ -149,16 +154,21 @@ final class ConvertlyClient
             $body[$key] = new \CURLFile($filePath, $this->mimeType($filePath), basename($filePath));
         }
 
+        $headers = array(
+            'Authorization: Bearer ' . $this->apiKey,
+            'Accept: application/json',
+        );
+        if (!empty($fields['idempotencyKey'])) {
+            $headers[] = 'Idempotency-Key: ' . (string) $fields['idempotencyKey'];
+        }
+
         $curl = curl_init($this->baseUrl . $path);
         curl_setopt_array($curl, array(
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $body,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 120,
-            CURLOPT_HTTPHEADER => array(
-                'Authorization: Bearer ' . $this->apiKey,
-                'Accept: application/json',
-            ),
+            CURLOPT_HTTPHEADER => $headers,
         ));
 
         return $this->execute($curl);
