@@ -1,0 +1,16 @@
+{
+  "name": "convertly/convertly-php",
+  "description": "Official PHP client for the Convertly media API.",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Convertly\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=8.0",
+    "ext-curl": "*",
+    "ext-json": "*"
+  }
+}
