@@ -25,6 +25,17 @@ final class ConvertlyClient
         return $this->requestJson('GET', '/api/jobs?limit=' . max(1, $limit));
     }
 
+    public function getJob(string $jobId): array
+    {
+        return $this->requestJson('GET', '/api/jobs/' . rawurlencode($jobId));
+    }
+
+    public function createJob(array $paths, array $fields): array
+    {
+        $fields['saveToStorage'] = 'true';
+        return $this->multipartMany('/api/jobs', $paths, $fields);
+    }
+
     public function compressFile(string $path, array $options = array()): array
     {
         return $this->multipart('/api/compress', $path, array(
@@ -103,6 +114,40 @@ final class ConvertlyClient
 
         $body = $fields;
         $body['files'] = new \CURLFile($filePath, $this->mimeType($filePath), basename($filePath));
+
+        $curl = curl_init($this->baseUrl . $path);
+        curl_setopt_array($curl, array(
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 120,
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Bearer ' . $this->apiKey,
+                'Accept: application/json',
+            ),
+        ));
+
+        return $this->execute($curl);
+    }
+
+    private function multipartMany(string $path, array $filePaths, array $fields): array
+    {
+        if (!$this->hasApiKey()) {
+            return array('ok' => false, 'error' => 'Missing Convertly API key.');
+        }
+        if (!function_exists('curl_init') || !class_exists('CURLFile')) {
+            return array('ok' => false, 'error' => 'Convertly uploads require the PHP cURL extension.');
+        }
+
+        $body = $fields;
+        $paths = array_values($filePaths);
+        foreach ($paths as $index => $filePath) {
+            if (!is_readable($filePath)) {
+                return array('ok' => false, 'error' => 'File is not readable.');
+            }
+            $key = count($paths) === 1 ? 'files' : 'files[' . $index . ']';
+            $body[$key] = new \CURLFile($filePath, $this->mimeType($filePath), basename($filePath));
+        }
 
         $curl = curl_init($this->baseUrl . $path);
         curl_setopt_array($curl, array(
