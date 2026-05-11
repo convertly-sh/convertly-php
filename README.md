@@ -24,3 +24,5 @@ if (!$result['ok']) {
     throw new RuntimeException($result['error']);
 }
 ```
+
+Raster-to-SVG conversion preserves color by default. Pass `'mono' => true` only for monochrome tracing.

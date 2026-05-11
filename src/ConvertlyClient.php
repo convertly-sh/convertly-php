@@ -52,6 +52,7 @@ final class ConvertlyClient
             'format' => $format,
             'compression' => (string) ($options['compression'] ?? 'balanced'),
             'autoOrient' => $this->booleanField((bool) ($options['auto_orient'] ?? $options['autoOrient'] ?? true)),
+            'mono' => $this->booleanField((bool) ($options['mono'] ?? false)),
             'saveToStorage' => $this->booleanField((bool) ($options['save_to_storage'] ?? $options['saveToStorage'] ?? false)),
         );
 
