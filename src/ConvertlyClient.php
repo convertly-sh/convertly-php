@@ -30,6 +30,39 @@ final class ConvertlyClient
         return $this->requestJson('GET', '/api/jobs/' . rawurlencode($jobId));
     }
 
+    public function getFiles(?string $folderId = null, int $limit = 100, int $offset = 0, string $search = ''): array
+    {
+        $query = array(
+            'limit' => max(1, min(100, $limit)),
+            'offset' => max(0, $offset),
+        );
+        if ($folderId !== null && $folderId !== '') {
+            $query['folderId'] = $folderId;
+        } elseif ($folderId === '') {
+            $query['folderId'] = 'null';
+        }
+        if (trim($search) !== '') {
+            $query['q'] = trim($search);
+        }
+
+        return $this->requestJson('GET', '/api/files?' . http_build_query($query));
+    }
+
+    public function getFolders(?string $parentId = null, string $search = ''): array
+    {
+        $query = array();
+        if ($parentId !== null && $parentId !== '') {
+            $query['parentId'] = $parentId;
+        } elseif ($parentId === '') {
+            $query['parentId'] = 'null';
+        }
+        if (trim($search) !== '') {
+            $query['q'] = trim($search);
+        }
+
+        return $this->requestJson('GET', '/api/folders' . ($query ? '?' . http_build_query($query) : ''));
+    }
+
     public function createJob(array $paths, array $fields): array
     {
         $fields['saveToStorage'] = 'true';
@@ -48,15 +81,33 @@ final class ConvertlyClient
 
     public function convertFile(string $path, string $format, array $options = array()): array
     {
+        // /api/convert's schema requires a numeric compression (1..100). Map
+        // legacy named presets to quality levels so existing callers keep
+        // working without breaking the API contract.
+        $compression = $options['compression'] ?? 82;
+        if (is_string($compression) && !is_numeric($compression)) {
+            $presets = array(
+                'fast' => 65,
+                'low' => 65,
+                'balanced' => 82,
+                'medium' => 82,
+                'careful' => 92,
+                'high' => 92,
+                'lossless' => 100,
+            );
+            $compression = $presets[strtolower($compression)] ?? 82;
+        }
+        $compression = max(1, min(100, (int) $compression));
+
         $fields = array(
             'format' => $format,
-            'compression' => (string) ($options['compression'] ?? 'balanced'),
+            'compression' => (string) $compression,
             'autoOrient' => $this->booleanField((bool) ($options['auto_orient'] ?? $options['autoOrient'] ?? true)),
             'mono' => $this->booleanField((bool) ($options['mono'] ?? false)),
             'saveToStorage' => $this->booleanField((bool) ($options['save_to_storage'] ?? $options['saveToStorage'] ?? false)),
         );
 
-        foreach (array('resize', 'resizeWidth', 'resizeHeight') as $key) {
+        foreach (array('resize', 'resizeWidth', 'resizeHeight', 'vectorize') as $key) {
             if (isset($options[$key]) && $options[$key] !== '') {
                 $fields[$key] = (string) $options[$key];
             }
@@ -75,7 +126,16 @@ final class ConvertlyClient
     public function mediaTool(string $tool, string $path, array $fields = array()): array
     {
         $tool = trim($tool, '/');
-        return $this->multipart('/api/media/' . $tool, $path, $fields);
+        return $this->multipart('/api/media/' . $tool, $path, $fields, 'file');
+    }
+
+    public function uploadFile(string $path, ?string $folderId = null, ?string $filename = null): array
+    {
+        $fields = array();
+        if ($folderId !== null && $folderId !== '') {
+            $fields['folderId'] = $folderId;
+        }
+        return $this->multipart('/api/files', $path, $fields, 'file', $filename);
     }
 
     private function requestJson(string $method, string $path): array
@@ -101,7 +161,7 @@ final class ConvertlyClient
         return $this->execute($curl);
     }
 
-    private function multipart(string $path, string $filePath, array $fields): array
+    private function multipart(string $path, string $filePath, array $fields, string $fileField = 'files', ?string $filename = null): array
     {
         if (!$this->hasApiKey()) {
             return array('ok' => false, 'error' => 'Missing Convertly API key.');
@@ -114,7 +174,8 @@ final class ConvertlyClient
         }
 
         $body = $fields;
-        $body['files'] = new \CURLFile($filePath, $this->mimeType($filePath), basename($filePath));
+        $uploadName = $filename !== null && $filename !== '' ? basename($filename) : basename($filePath);
+        $body[$fileField] = new \CURLFile($filePath, $this->mimeType($filePath), $uploadName);
 
         $headers = array(
             'Authorization: Bearer ' . $this->apiKey,

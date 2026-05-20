@@ -26,3 +26,15 @@ if (!$result['ok']) {
 ```
 
 Raster-to-SVG conversion preserves color by default. Pass `'mono' => true` only for monochrome tracing.
+
+## Convertly Storage
+
+```php
+$rootFolders = $convertly->getFolders('');
+$rootFiles = $convertly->getFiles('', 100, 0);
+
+$nestedFiles = $convertly->getFiles($folderId, 100, 0);
+$uploaded = $convertly->uploadFile(__DIR__ . '/hero.jpg', $folderId);
+```
+
+Pass an empty string to `getFolders()` or `getFiles()` to list only the root level. Omit the folder argument to list across the account.
