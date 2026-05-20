@@ -253,7 +253,14 @@ final class ConvertlyClient
         }
 
         if ($status < 200 || $status >= 300) {
-            return array('ok' => false, 'status' => $status, 'error' => $json['error'] ?? 'Convertly request failed.');
+            $result = array('ok' => false, 'status' => $status, 'error' => $json['error'] ?? 'Convertly request failed.');
+            if (isset($json['code'])) {
+                $result['code'] = (string) $json['code'];
+            }
+            if (isset($json['detail'])) {
+                $result['detail'] = (string) $json['detail'];
+            }
+            return $result;
         }
 
         return array('ok' => true, 'status' => $status, 'body' => $json);
