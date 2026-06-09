@@ -3,6 +3,18 @@
   "description": "Official PHP client for the Convertly media API.",
   "type": "library",
   "license": "MIT",
+  "keywords": ["convertly", "media", "image", "video", "compression", "api", "wordpress"],
+  "homepage": "https://convertly.sh",
+  "authors": [
+    {
+      "name": "Convertly",
+      "homepage": "https://convertly.sh"
+    }
+  ],
+  "support": {
+    "docs": "https://docs.convertly.sh/docs/php-sdk",
+    "issues": "https://convertly.sh/support"
+  },
   "autoload": {
     "psr-4": {
       "Convertly\\": "src/"
@@ -12,5 +24,6 @@
     "php": ">=8.0",
     "ext-curl": "*",
     "ext-json": "*"
-  }
+  },
+  "minimum-stability": "stable"
 }

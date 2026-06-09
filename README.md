@@ -1,6 +1,6 @@
 # Convertly PHP SDK
 
-Official PHP client for the Convertly media API.
+Official PHP client for the <a href="https://docs.convertly.sh/docs/php-sdk" target="_blank" rel="noopener noreferrer">Convertly media API</a>.
 
 ```bash
 composer require convertly/convertly-php
@@ -19,22 +19,15 @@ $result = $convertly->convertFile(__DIR__ . '/photo.png', 'webp', [
     'compression' => 'balanced',
     'saveToStorage' => false,
 ]);
-
-if (!$result['ok']) {
-    throw new RuntimeException($result['error']);
-}
 ```
 
-Raster-to-SVG conversion preserves color by default. Pass `'mono' => true` only for monochrome tracing.
+## Image CDN
 
-## Convertly Storage
+This SDK covers the **REST media API**. CDN delivery is URL-based — see <a href="https://docs.convertly.sh/docs/image-cdn" target="_blank" rel="noopener noreferrer">Image CDN</a> and the <a href="https://docs.convertly.sh/guides/image-cdn-setup" target="_blank" rel="noopener noreferrer">setup guide</a>. For JS/TS CDN helpers: <a href="https://www.npmjs.com/package/@convertly-sh/image" target="_blank" rel="noopener noreferrer">`@convertly-sh/image`</a>.
 
-```php
-$rootFolders = $convertly->getFolders('');
-$rootFiles = $convertly->getFiles('', 100, 0);
+## License
 
-$nestedFiles = $convertly->getFiles($folderId, 100, 0);
-$uploaded = $convertly->uploadFile(__DIR__ . '/hero.jpg', $folderId);
-```
+**MIT** © <a href="https://convertly.sh" target="_blank" rel="noopener noreferrer">Convertly</a>.
 
-Pass an empty string to `getFolders()` or `getFiles()` to list only the root level. Omit the folder argument to list across the account.
+- Summary: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer">MIT on Open Source Initiative</a>
+- Full text: `LICENSE` in this package (included when installed via Composer / Packagist)
