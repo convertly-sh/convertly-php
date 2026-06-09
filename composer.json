@@ -5,6 +5,7 @@
   "license": "MIT",
   "keywords": ["convertly", "media", "image", "video", "compression", "api", "wordpress"],
   "homepage": "https://convertly.sh",
+  "version": "0.1.0",
   "authors": [
     {
       "name": "Convertly",
@@ -13,7 +14,8 @@
   ],
   "support": {
     "docs": "https://docs.convertly.sh/docs/php-sdk",
-    "issues": "https://convertly.sh/support"
+    "issues": "https://github.com/convertly-sh/convertly-php/issues",
+    "source": "https://github.com/convertly-sh/convertly-php"
   },
   "autoload": {
     "psr-4": {
