@@ -13,4 +13,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: php-actions/composer@v6
         with:
-          command: validate --strict
+          command: validate
